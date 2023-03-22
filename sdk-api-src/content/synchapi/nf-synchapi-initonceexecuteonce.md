@@ -86,7 +86,7 @@ If the function fails, the return value is zero. To get extended error informati
 
 This function is used for synchronous one-time initialization. For asynchronous one-time initialization, use the <a href="/windows/desktop/api/synchapi/nf-synchapi-initoncebegininitialize">InitOnceBeginInitialize</a> function with the <b>INIT_ONCE_ASYNC</b> flag.
 
-Only one thread at a time can execute the callback function specified by <i>InitFn</i>. Other threads that specify the same one-time initialization structure block until the callback finishes.
+When multiple threads call InitOnceExecuteOnce passing the same one-time initialization block, only one thread will execute the callback function specified by <i>InitFn</i>.  The remaining threads will block until the callback function completes.  If the callback function returns <b>TRUE</b> to indicate success, InitOnceExecuteOnce will return <b>TRUE</b> back to all callers at once.  If, however, the callback returns <b>FALSE</b> to indicate failure, InitOnceExecuteOnce will return <b>FALSE</b> to only the single thread which executed the callback function.  At this same time one of the remaining blocked threads will unblock and execute <i>InitFn</i> once again.  Thus, in a scenario where <i>InitFn</i> can fail intermittedly and retries are desired, all threads should continue calling InitOnceExecuteOnce util <b>TRUE</b> is returned. 
 
 To compile an application that uses this function, define <b>_WIN32_WINNT</b> as 0x0600 or later. For more information, see 
 <a href="/windows/desktop/WinProg/using-the-windows-headers">Using the Windows Headers</a>.
